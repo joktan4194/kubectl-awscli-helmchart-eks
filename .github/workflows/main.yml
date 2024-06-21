@@ -48,7 +48,14 @@ jobs:
       - name: Check Dockerfile
         run: |
             if [ ! -f ./Dockerfile ]; then echo "Dockerfile not found!"; exit 1; fi
-        
+            
+      - name: Print Working Directory
+        run: pwd
+
+
+      - name: List Files
+        run: ls -al
+                  
 
       # Build the Docker image
       - name: Build Docker image
