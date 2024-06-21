@@ -61,13 +61,15 @@ jobs:
       # Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t $IMAGE_NAME -f ./Dockerfile .
+          docker build -t ${{ secrets.IMAGE_NAME }} -f ./Dockerfile .
 
       # Push the Docker image
       - name: Push Docker image
         run: |
-          docker push $IMAGE_NAME
-          if [ "$IMAGE_TAG" == "latest" ]; then
-            docker tag $IMAGE_NAME $IMAGE_NAME_LATEST
-            docker push $IMAGE_NAME_LATEST
-          fi
+          docker push ${{ secrets.IMAGE_NAME }}
+          docker tag ${{ secrets.IMAGE_NAME }} ${{secrets.IMAGE_NAME_LATEST}}
+          docker push ${{secrets.IMAGE_NAME_LATEST}}
+        #   if [ "$IMAGE_TAG" == "latest" ]; then
+            # docker tag $IMAGE_NAME $IMAGE_NAME_LATEST
+            # docker push $IMAGE_NAME_LATEST
+        #   fi
