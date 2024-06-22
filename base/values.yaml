@@ -17,7 +17,7 @@ persistentVolume:
   # storageClass: "-"
   name: data
   accessModes:
-    - ReadWriteOnce
+  - ReadWriteOnce
   size: 8Gi
   annotations: {}
   labels: {}
@@ -196,8 +196,8 @@ ingress:
   ## Defaults to the templated value `{{ ingress.web.path }}/health`
   livenessPath:
   # annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
   host: chart-example.local
   path: "/"
 
@@ -207,8 +207,8 @@ istio:
   ## Defaults to the templated value `{{ ingress.web.path }}/health`
   livenessPath:
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
   host: chart-example.local
   path: "/"
 
