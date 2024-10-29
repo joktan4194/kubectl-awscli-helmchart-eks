@@ -1,6 +1,5 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "base.fullname" . -}}
-{{- $svcPort := .Values.service.port -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -14,12 +13,17 @@ metadata:
     {{- if .Values.alb.conditionals }}
     alb.ingress.kubernetes.io/conditions.{{ $fullName }}: {{ .Values.alb.conditions | squote }}
     {{- end }}
+    # alb.ingress.kubernetes.io/actions.rule-path1: >
+    #   {"type":"forward","forwardConfig":{"targetGroups":[{"serviceName":"svc-a-service","servicePort":80,"weight":100}]}}
+    # alb.ingress.kubernetes.io/conditions.rule-path1: >
+    #   [{"field":"host-header","hostHeaderConfig":{"values":["anno.example.com"]}}]    
     {{- if .Values.alb.enabled }}
     {{- if .Values.alb.single }}
     alb.ingress.kubernetes.io/group.name: {{ .Values.alb.name | quote }}
     {{- end }}
     alb.ingress.kubernetes.io/scheme: {{ .Values.alb.scheme | quote }}
     # alb.ingress.kubernetes.io/wafv2-acl-arn: {{ .Values.alb.waf | quote }}
+    # Conditional ACM Certificate and Listener Ports
     {{- if .Values.service.acm }}
     alb.ingress.kubernetes.io/certificate-arn: {{ .Values.service.acm | quote }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
@@ -27,6 +31,7 @@ metadata:
     {{- else }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
     {{- end }}
+
     alb.ingress.kubernetes.io/success-codes: {{ .Values.alb.success | quote }}
     alb.ingress.kubernetes.io/healthcheck-path: {{ .Values.alb.healthcheck | quote }}
     alb.ingress.kubernetes.io/healthcheck-port: traffic-port
@@ -34,33 +39,29 @@ metadata:
     {{- if .Values.alb.sg }}
     alb.ingress.kubernetes.io/security-groups: {{ .Values.alb.sg | quote }}
     {{- end }}
-    {{- if .Values.alb.grpc }}
+    {{ if .Values.alb.grpc }}
     alb.ingress.kubernetes.io/backend-protocol-version: GRPC
-    {{- else }}
+    {{ else }}
     alb.ingress.kubernetes.io/backend-protocol-version: HTTP1
-    {{- end }}
+    {{ end }}
     alb.ingress.kubernetes.io/target-type: instance
     alb.ingress.kubernetes.io/ip-address-type: ipv4
-    {{- else }}
+    {{- else -}}
     kubernetes.io/ingress.class: {{ .Values.ingress.class | quote }}
     {{- end }}
+
 spec:
   rules:
-    - host: {{ .Values.service.host | quote }}
+  {{- range .Values.ingress.routes }}
+    - host: {{ .host | quote }}
       http:
         paths:
-          - path: {{ .Values.ingress.path | quote }}
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: ssl-redirect
-                port:
-                  name: use-annotation
-          - path: {{ .Values.ingress.path | quote }}
+          - path: {{ .path | quote }}
             pathType: ImplementationSpecific
             backend:
               service:
                 name: {{ $fullName }}
                 port:
-                  number: {{ $svcPort }}
+                  number: {{ .service.port }}
+  {{- end }}
 {{- end }}
