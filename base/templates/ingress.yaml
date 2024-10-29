@@ -60,7 +60,7 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: {{ .service.name | quote }}
+                name: {{ $fullName }}
                 port:
                   number: {{ .service.port }}
   {{- end }}
